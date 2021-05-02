@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -5,7 +6,7 @@ import numpy as np
 
 # Import data
 df = pd.read_csv('medical_examination.csv')
-
+#%%
 # Add 'overweight' column
 def overweight_calculator(weight, height):
     BMI = weight / ((height/100))**2
@@ -39,26 +40,28 @@ def draw_cat_plot():
     fig.savefig('catplot.png')
     return fig
 
-
 # Draw Heat Map
 def draw_heat_map():
     # Clean the data
-    df_heat = None
+    df_heat = df[
+        (df.ap_lo <= df.ap_hi) &
+        (df.height >= df.height.quantile(0.025)) &
+        (df.height <= df.height.quantile(0.975)) &
+        (df.weight >= df.weight.quantile(0.025)) &
+        (df.weight <= df.weight.quantile(0.975))   
+    ]
 
     # Calculate the correlation matrix
-    corr = None
+    corr = df_heat.corr()
 
     # Generate a mask for the upper triangle
-    mask = None
+    mask = np.triu(np.ones_like(df_heat.corr(), dtype=bool))
 
 
 
     # Set up the matplotlib figure
-    fig, ax = None
-
-    # Draw the heatmap with 'sns.heatmap()'
-
-
+    fig, ax = plt.subplots(figsize=(11, 9))
+    sns.heatmap(df_heat.corr(),linewidths=.5,annot=True,fmt='.1f',mask=mask,square=True,center=0,vmin=-0.08,vmax=0.24,cbar_kws={'shrink':.45,'format': '%.2f'})
 
     # Do not modify the next two lines
     fig.savefig('heatmap.png')
